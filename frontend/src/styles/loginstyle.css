@@ -1,0 +1,51 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+.login-card {
+    background-color: rgba(255,255,255,0.9);
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+  }
+  
+  /* Header styling */
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  
+  /* Styling the form */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  
+  .form-control {    
+    padding: 12px;
+    width: 100%;    
+    color: #555;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+  }
+  
+  
+  /* Adding responsive support */
+  @media (max-width: 500px) {
+    .login-card {
+      padding: 30px 20px;
+    }
+  }

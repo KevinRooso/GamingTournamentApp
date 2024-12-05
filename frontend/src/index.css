@@ -1,0 +1,60 @@
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  font-size: 14px !important;
+  background: linear-gradient(135deg, #00c6ff, #0072ff, #1e3c72); /* Electric blue to deep blue */
+}
+
+.container {
+  padding: 20px;
+  background-color: #ffffff; 
+  border-radius: 8px; 
+  height: 90vh;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 10px; 
+  margin-top: 5px;
+  transition: all 0.3s ease; /* Smooth transitions for hover effects */
+}
+
+.container h4{
+  margin-bottom: 1.5rem;
+}
+
+/* Optional: Hover effect for the container */
+.container:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7) !important; /* Slightly larger shadow on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    margin: 10px; /* Less margin on smaller screens */
+    padding: 15px; /* Less padding on smaller screens */
+  }
+}
+
+.h-90 {
+  height: 90% !important;
+}
+
+input.form-control,
+select.form-select {
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  font-size: 14px;
+}
+
+input.form-control:focus,
+select.form-select:focus {
+  border-color: #0072ff;
+  box-shadow: 0 0 5px rgba(0, 114, 255, 0.5); /* Focus effect */
+}
+
+.table-container{
+  max-height: 80%; /* Set the maximum height */
+  overflow-y: overlay;  /* Enable vertical scrolling */
+  border: 1px solid #ddd; /* Optional border around the table container */
+  margin: 20px; /* Optional margin */
+}

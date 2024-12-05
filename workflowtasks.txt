@@ -1,0 +1,21 @@
+npm init -y
+npm install express sqlite3 body-parser cors jsonwebtoken bcrpytjs dotenv
+npm install -g nodemon
+nodemon
+
+npm create vite@latest frontend
+cd frontend
+npm install 
+npm run dev
+
+npm install bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css'; in main.jsx
+npm install react-router-dom
+npm install axios
+npm i --save @fortawesome/fontawesome-svg-core
+npm install --save @fortawesome/free-solid-svg-icons
+npm install --save @fortawesome/react-fontawesome
+npm install react-data-table-component
+npm install react-hot-toast
+
+used Prettier to format the code

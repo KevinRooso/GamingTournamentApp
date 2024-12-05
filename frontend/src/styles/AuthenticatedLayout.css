@@ -1,0 +1,71 @@
+/* Hamburger button style */
+.hamburger {
+    font-size: 24px;
+    background: none;
+    border: none;    
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    cursor: pointer;
+    padding: 10px;
+    transition: background-color 0.3s;
+  }
+  
+  .hamburger:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+  }
+  
+  /* Sidebar container */
+  .sidebar-container {
+    background-color: #f8f9fa;
+    padding: 15px;
+    height: 100vh;
+    overflow-y: hidden;
+    transition: width 0.3s ease-in-out;
+    position: fixed; /* Keeps it fixed */
+    top: 0;
+    left: 0;
+    z-index: 999; /* Ensure it's below the hamburger */
+    width: 250px; /* Set a width for the sidebar */
+  }
+  
+  /* Hide sidebar when collapsed */
+  .sidebar-collapsed {
+    width: 0;
+    visibility: hidden;
+    padding: 0;
+  }
+  
+  /* Content container */
+  .content-container {
+    transition: margin-left 0.3s ease-in-out;
+    padding: 20px;
+  }
+  
+  .content-expanded {
+    margin-left: 250px; /* Push the content when sidebar is expanded */
+  }
+  
+  /* On mobile devices (max-width: 768px), make the sidebar collapsible */
+  @media (max-width: 768px) {
+    .sidebar-container {
+      display: none; /* Hide the sidebar initially */
+      width: 0;
+    }
+  
+    .sidebar-container.sidebar-collapsed {
+      display: block;
+      width: 250px; /* Set the width for the sidebar on mobile */
+    }
+  
+    .content-container {
+      margin-left: 0; /* No margin on smaller screens */
+    }
+    
+    .hamburger {
+      top: 15px; /* Adjust top position on mobile */
+      left: 15px; /* Adjust left position on mobile */
+    }
+  }
+  
