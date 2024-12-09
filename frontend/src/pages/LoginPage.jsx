@@ -3,6 +3,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/loginstyle.css";
 import { loginUser } from "../services/AuthService";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -23,9 +24,9 @@ export default function Login() {
     try {
       const data = await loginUser(user);
       if(data){
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("token", data.token);        
         navigate('/dashboard');
-        navigate(0);
+        navigate(0);        
       }
     } catch (err) {
       setError(err.message || "Login Failed");

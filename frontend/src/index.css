@@ -58,3 +58,8 @@ select.form-select:focus {
   border: 1px solid #ddd; /* Optional border around the table container */
   margin: 20px; /* Optional margin */
 }
+
+.form-error{
+  line-height: 0;
+  font-size: 12px;
+}

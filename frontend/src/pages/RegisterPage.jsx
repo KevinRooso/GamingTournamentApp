@@ -5,6 +5,7 @@ import "../styles/loginstyle.css";
 import "../styles/registerstyle.css";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/AuthService";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -15,16 +16,85 @@ export default function Register() {
   const [contact, setContact] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [formErrors, setFormErrors] = useState({
+    email: "",
+    contact: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    let valid = true;
+    const errors = {};
+
+    // Email Validation
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(email)) {
+      errors.email = "Please enter a valid email address";
+      valid = false;
+    }
+
+    // Contact Number Validation
+    const contactPattern = /^[0-9]{10}$/;
+    if (!contactPattern.test(contact)) {
+      errors.contact = "Please enter a valid contact number";
+      valid = false;
+    }
+
+    // Password Validation
+    const passwordPattern =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordPattern.test(password)) {
+      // Check password length
+      if (password.length < 8) {
+        errors.password = "Password must be at least 8 characters long.";
+        valid = false;
+      }
+      // Check for lowercase letter
+      else if (!/[a-z]/.test(password)) {
+        errors.password =
+          "Password must contain at least one lowercase letter.";
+        valid = false;
+      }
+      // Check for uppercase letter
+      else if (!/[A-Z]/.test(password)) {
+        errors.password =
+          "Password must contain at least one uppercase letter.";
+        valid = false;
+      }
+      // Check for number
+      else if (!/\d/.test(password)) {
+        errors.password = "Password must contain at least one number.";
+        valid = false;
+      }
+      // Check for special characters
+      else if (!/[^A-Za-z\d]/.test(password)) {
+        errors.password = "Password must contain at least one special character.";
+        valid = false;
+      } 
+    }
+
+    // Confirm Password Validation
+    if (password.localeCompare(confirmPassword) == 0) {
+      errors.confirmPassword = "Passwords do not match";
+      valid = false;
+    }
+
+    setFormErrors(errors);
+    return valid;
+  };
+
   const register = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+
+    // Perform form validation
+    if (!validateForm()) {
+      toast.error("Invalid Fields");
       return;
     }
-    setLoading(true);    
+    setLoading(true);
 
     const user = {
       name,
@@ -36,12 +106,12 @@ export default function Register() {
 
     try {
       const data = await registerUser(user);
-      if(data){
+      if (data) {
         localStorage.setItem("token", data.token);
-        navigate('/dashboard');
+        navigate("/dashboard");
         navigate(0);
       }
-    } catch (err) {     
+    } catch (err) {
       setError(err.message || "Registration Failed");
     } finally {
       setLoading(false);
@@ -92,10 +162,17 @@ export default function Register() {
                   type="email"
                   className="form-control"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                  }}
                   placeholder="Enter Email"
                   required
                 />
+                {formErrors.email && (
+                  <div className="text-danger form-error">
+                    {formErrors.email}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -110,6 +187,11 @@ export default function Register() {
                   placeholder="Enter Contact Number"
                   required
                 />
+                {formErrors.contact && (
+                  <div className="text-danger form-error">
+                    {formErrors.contact}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -124,6 +206,11 @@ export default function Register() {
               placeholder="Enter Password"
               required
             />
+            {formErrors.password && (
+              <div className="text-danger form-error">
+                {formErrors.password}
+              </div>
+            )}
           </div>
 
           <div className="form-group">
@@ -136,6 +223,11 @@ export default function Register() {
               placeholder="Confirm Password"
               required
             />
+            {formErrors.confirmPassword && (
+              <div className="text-danger form-error">
+                {formErrors.confirmPassword}
+              </div>
+            )}
           </div>
 
           <button type="submit" className="btn btn-primary w-100">
@@ -150,7 +242,6 @@ export default function Register() {
             Sign In
           </Link>
         </p>
-
       </div>
     </div>
   );
