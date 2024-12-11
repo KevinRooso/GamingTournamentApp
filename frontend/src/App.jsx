@@ -45,6 +45,10 @@ export default function App() {
               element={<CreateTournament />}
             />
             <Route
+              path="/tournaments/:id/update"
+              element={<CreateTournament />}
+            />
+            <Route
               path="/tournaments/:id/matches"
               element={<TournamentMatches />}
             />

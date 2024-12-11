@@ -4,7 +4,8 @@ import DataTable from 'react-data-table-component';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUserGroup, 
-  faAdd
+  faAdd,
+  faEdit
 } from "@fortawesome/free-solid-svg-icons";
 import { fetchTournamentList } from "../services/TournamentService";
 import { Link } from "react-router-dom";
@@ -29,7 +30,7 @@ useEffect(() => {
     fetchTournaments();
 }, []); // Only runs on the first load (mount) not on re rendering
 
-const columns = [
+let columns = [
 	{
 		name: 'Name',
 		selector: row => row.name,
@@ -56,17 +57,35 @@ const columns = [
         sortable: true
 	},
     {
-        name: 'Participate',
+        name: 'Participants',
         selector: row => {
             return (
                 <Link to={`/tournaments/${row.id}/participants`}>
-                <button className="btn btn-primary">
-                Participants <FontAwesomeIcon icon={faUserGroup} /></button>
+                <button className="btn btn-primary px-3">
+                <FontAwesomeIcon icon={faUserGroup} /></button>
                 </Link>                
             )
         },
-    },
+    }
 ];
+
+if(userData && userData.roleId == 1){
+    columns.push(
+        {
+        name: 'Actions',
+        selector: row => {            
+            return (
+                <div>
+                    <Link to={`/tournaments/${row.id}/update`}>
+                    <button className={`btn btn-primary px-3 ${row.start_date ? 'disabled' : ''}`}>
+                        <FontAwesomeIcon icon={faEdit}></FontAwesomeIcon>
+                    </button>
+                    </Link>
+                </div>
+                )
+        }}
+    );
+}
 
     return (
         <div className="container">

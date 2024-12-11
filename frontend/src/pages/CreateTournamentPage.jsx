@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import withAuth from "../guards/Authguard";
-import { Link } from "react-router-dom";
-import { createNewTournament } from "../services/TournamentService";
+import { Link, useParams } from "react-router-dom";
+import { createNewTournament, fetchTournamentDetailsById, updateTournament } from "../services/TournamentService";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,33 @@ const CreateTournament = () => {
     maxParticipants: "4",
   });
 
+  // Checks if page is for create or update
+  const params = useParams();   
+  const tournamentId = params.id || null;
+  if(tournamentId){
+    useEffect(() => {              
+      fetchTournamentData()
+    }, []);
+  }
+
+  // If page is for update Tournament
+  const fetchTournamentData = async () => {
+    try{
+      const response = await fetchTournamentDetailsById(tournamentId);   
+      if(response.data){
+        const data = response.data
+        const formData = {
+          name: data.name,
+          gameType: data.game_type,
+          maxParticipants: data.max_participants,
+        }
+        setFormData(formData);
+      }   
+    }catch(err){
+      console.error("Error Fetching Details", err);
+    }
+  }
+
   // Handle form field changes
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -25,7 +52,19 @@ const CreateTournament = () => {
   
   const handleCreateTournament = async (e) => {
     e.preventDefault();    
-    try {
+    if(tournamentId){
+      try {
+        const data = await updateTournament(formData,tournamentId);
+        toast.success('Tournament Updated!');
+        if(data){          
+          navigate('/tournaments');
+          navigate(0);
+        }
+      } catch (err) {
+        toast.error(err.message || 'Error Updating Tournament');
+      }    
+    }else{
+      try {
         const data = await createNewTournament(formData);
         toast.success('Tournament Created!');
         if(data){          
@@ -35,6 +74,7 @@ const CreateTournament = () => {
       } catch (err) {
         toast.error(err.message || 'Error Creating Tournament');
       }
+    }    
   };
 
   return (
@@ -80,7 +120,9 @@ const CreateTournament = () => {
           </select>
         </div>
         <button className="btn btn-primary w-25 mt-4" type="submit">
-            Create
+            {
+              tournamentId ? 'Update' : 'Create'
+            }
         </button>
       </form>
     </div>

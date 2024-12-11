@@ -10,13 +10,13 @@ export const fetchTournamentList = async ()=>{
     }
 };
 
-// Fetch All Tournaments
+// Fetch Tournament By Id
 export const fetchTournamentDetailsById = async (id)=>{
     try{
         const response = await axiosInstance.get(`/tournaments/${id}`);
         return response.data;
     }catch(error){        
-        throw error.response ? error.response.data : new Error("Fetching Tournaments Failed");
+        throw error.response ? error.response.data : new Error("Fetching Tournament Failed");
     }
 };
 
@@ -29,6 +29,17 @@ export const createNewTournament = async (formData)=>{
         throw error.response ? error.response.data : new Error("Creating Tournament Failed");
     }
 };
+
+// Update Tournament
+export const updateTournament = async (formData,id)=>{
+    try{        
+        const response = await axiosInstance.put(`/tournaments/${id}`,formData);
+        return response.data;
+    }catch(error){        
+        throw error.response ? error.response.data : new Error("Updating Tournament Failed");
+    }
+};
+
 
 // Start Tournament
 export const startKnockoutTournament = async (id)=>{

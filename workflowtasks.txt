@@ -1,5 +1,5 @@
 npm init -y
-npm install express sqlite3 body-parser cors jsonwebtoken bcrpytjs dotenv
+npm install express sqlite3 cors jsonwebtoken bcrpytjs dotenv
 npm install -g nodemon
 nodemon
 

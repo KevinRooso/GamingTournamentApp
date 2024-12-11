@@ -75,13 +75,13 @@ const getTournamentById = (id) => {
 // Update a tournament
 const updateTournament = (id, tournamentData) => {
   return new Promise((resolve, reject) => {
-    const { name, game_type, max_participants } =
+    const { name, gameType, maxParticipants } =
       tournamentData;
     const query = `UPDATE tournaments SET name = ?, game_type = ?, max_participants = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
     const values = [
       name,
-      game_type,
-      Number(max_participants),
+      gameType,
+      maxParticipants,
       id,
     ];
     db.run(query, values, (err) => {
