@@ -90,11 +90,11 @@ const columns = [
     },
     {
         name: 'Player 1 Name',
-        selector: row => row.player1_name,
+        selector: row => row.player1?.name,
     },
     {
         name: 'Player 2 Name',
-        selector: row => row.player2_name,
+        selector: row => row.player2?.name,
     },
     {
         name: 'Match Date',
@@ -110,11 +110,11 @@ const columns = [
     },
     {
         name: 'Winner',
-        selector: row => row.winner_name,
+        selector: row => row.winner?.name,
     },
     {
         name: 'Created Date',
-        selector: row => new Date(row.created_at).toLocaleDateString(),
+        selector: row => new Date(row.createdAt).toLocaleDateString(),
     }
 ];
 

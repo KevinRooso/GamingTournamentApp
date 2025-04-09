@@ -31,8 +31,8 @@ const CreateTournament = () => {
         const data = response.data
         const formData = {
           name: data.name,
-          gameType: data.game_type,
-          maxParticipants: data.max_participants,
+          gameType: data.gameType,
+          maxParticipants: data.maxParticipants,
         }
         setFormData(formData);
       }   

@@ -4,12 +4,22 @@ const userModel = require('../models/user')
 const registerUser = async(req,res)=>{
     try{
         // Checks for existing user
-        const existingUser = await userModel.getUserByUsername(req.body.username);
+        const existingUser = await userModel.findOne({
+            where: {
+                username: req.body.username
+            }
+        });
         if(existingUser){
             return res.status(400).json({message: 'User already exists'});
         }
 
-        const newUserId = await userModel.createUser(req.body);
+        const newUser = { 
+            roleId: 2,
+            roleName: 'User',
+            ...req.body            
+        }
+
+        const newUserId = await userModel.create(newUser);
         const token = jwt.sign({id: newUserId, roleId: 2}, process.env.JWT_SECRET, { expiresIn: '1h'});
         
         res.status(201).json({
@@ -25,7 +35,9 @@ const loginUser = async (req,res) =>{
     const { username, password } = req.body;
     try{
         // Check if it exists or not    
-        const existingUser = await userModel.getUserByUsername(username);
+        const existingUser = await userModel.findOne({
+            where: {username}
+        });
         if(!existingUser){
             return res.status(400).json({message: 'Invalid username or password'});
         }

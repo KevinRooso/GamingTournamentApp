@@ -38,22 +38,22 @@ let columns = [
 	},	
     {
 		name: 'Game Type',
-		selector: row => row.game_type,
+		selector: row => row.gameType,
         sortable: true
 	},
 	{
 		name: 'Start Date',
-		selector: row => row.start_date ? new Date(row.start_date).toLocaleDateString() : '-',
+		selector: row => row.startDate ? new Date(row.startDate).toLocaleDateString() : '-',
         sortable: true
 	},
     {
 		name: 'End Date',
-		selector: row => row.end_date ? new Date(row.end_date).toLocaleDateString() : '-',
+		selector: row => row.endDate ? new Date(row.endDate).toLocaleDateString() : '-',
         sortable: true
 	},
     {
 		name: 'Max participants',
-		selector: row => row.max_participants,
+		selector: row => row.maxParticipants,
         sortable: true
 	},
     {

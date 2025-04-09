@@ -1,0 +1,23 @@
+/* Chart container within the dashboard */
+.scrollable-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-height: 75vh; /* Limiting max height for the chart container */
+  overflow-y: auto; /* Enable vertical scrolling when content overflows */
+  padding-right: 10px; /* Optional for better scroll visibility */
+  width: 100%;
+  margin-top: 20px;
+}
+
+.chart {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 500px;
+  text-align: center;
+  margin-bottom: 20px;
+  flex-shrink: 0; /* Prevent chart from shrinking */
+}

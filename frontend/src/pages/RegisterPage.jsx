@@ -77,7 +77,7 @@ export default function Register() {
     }
 
     // Confirm Password Validation
-    if (password.localeCompare(confirmPassword) == 0) {
+    if (password.localeCompare(confirmPassword) != 0) {
       errors.confirmPassword = "Passwords do not match";
       valid = false;
     }

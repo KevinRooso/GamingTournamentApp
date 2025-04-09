@@ -1,14 +1,16 @@
 const participationModel = require('../models/participation');
+const Tournament = require('../models/tournament');
 const tournamentModel = require('../models/tournament');
+const userModel = require('../models/user');
 
 // Apply for a Tournament
 const applyForTournament = async (req, res) => {
     try {
         const { tournament_id } = req.body;
-        const user_id = req.user.id;
+        const user_id = req.user.id.id || req.user.id;
 
         // Check if tournament exists
-        const tournament = await tournamentModel.getTournamentById(tournament_id);
+        const tournament = await tournamentModel.findByPk(tournament_id);
         if (!tournament) {
             return res.status(404).json({
                 message: "Tournament not found"
@@ -16,7 +18,12 @@ const applyForTournament = async (req, res) => {
         }          
 
         // Check if user is already participating
-        const existingParticipation = await participationModel.checkUserParticipation(tournament_id, user_id);
+        const existingParticipation = await participationModel.findOne({
+            where:{
+                tournament_id,
+                user_id
+            }
+        });
         if (existingParticipation) {
             return res.status(400).json({
                 message: "You have already applied for this tournament"
@@ -24,15 +31,17 @@ const applyForTournament = async (req, res) => {
         }
 
         // Check if Tournament is full
-        const participants = await participationModel.getParticipationsByTournament(tournament_id);
-        if(participants.length == tournament.max_participants){
+        const participants = await participationModel.count({
+            where:{tournament_id}
+        });
+        if(participants >= tournament.max_participants){
             return res.status(400).json({
                 message: "Tournament is full"
             });
         }
 
         // Create participation
-        const newParticipation = await participationModel.createParticipation({ 
+        const newParticipation = await participationModel.create({ 
             tournament_id, 
             user_id 
         });
@@ -53,7 +62,13 @@ const applyForTournament = async (req, res) => {
 const getUserParticipations = async (req, res) => {
     try {
         const user_id = req.params.id;
-        const participations = await participationModel.getUserParticipations(user_id);
+        const participations = await participationModel.findAll({
+            where: {user_id},
+            include:{
+                model: tournamentModel,
+                attributes: ['name','game_type','start_date']
+            }
+        });
 
         res.status(200).json({
             message: "User participations retrieved successfully",
@@ -73,7 +88,22 @@ const cancelParticipation = async (req, res) => {
         const participationId = req.params.id;
         const user_id = req.user.id;
 
-        const participation = await participationModel.cancelParticipation(participationId, user_id);
+        // Find participation
+        const participation = await participationModel.findOne({
+        where: {
+            id: participationId,
+            user_id
+         }
+        });
+
+        if (!participation) {
+            return res.status(404).json({
+                message: "Participation not found"
+            });
+        }
+
+        // Delete participation
+        await participation.destroy();
 
         res.status(200).json({
             message: "Participation cancelled successfully",
@@ -91,7 +121,16 @@ const cancelParticipation = async (req, res) => {
 const getTournamentParticipations = async (req, res) => {
     try {
         const tournament_id = req.params.id;
-        const participations = await participationModel.getParticipationsByTournament(tournament_id);        
+        const participations = await participationModel.findAll({
+            where: { tournament_id},
+            include: [{
+                model: tournamentModel,
+                attributes: ['name','game_type','max_participants']
+            },{
+                model: userModel,
+                attributes: ['username','name']
+            }]
+        });        
 
         res.status(200).json({
             message: "Tournament participants retrieved successfully",

@@ -39,17 +39,17 @@ const Matches = () => {
   const columns = [
     {
       name: "Tournament Name",
-      selector: (row) => row.tournament_name,
+      selector: (row) => row.tournament?.name,
       sortable:true
     },
     {
       name: "Player 1 Name",
-      selector: (row) => row.player1_name,
+      selector: (row) => row.player1?.name,
       sortable:true
     },
     {
       name: "Player 1 Name",
-      selector: (row) => row.player2_name,
+      selector: (row) => row.player2?.name,
       sortable:true
     },
     {
@@ -60,7 +60,7 @@ const Matches = () => {
     },
     {
       name: "Winner",
-      selector: (row) => row.winner_name,
+      selector: (row) => row.winner?.name,
       sortable:true
     },
     {

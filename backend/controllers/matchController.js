@@ -1,11 +1,37 @@
 const matchModel = require('../models/match');
 const tournamentModel = require('../models/tournament');
 const participantModel = require('../models/participation');
+const User = require('../models/user');
+const { Op } = require('sequelize');
+const Tournament = require('../models/tournament');
 
 // Get all matches
 const getAllMatches = async (req, res) => {
     try {
-        const matches = await matchModel.getAllMatches();
+        const matches = await matchModel.findAll({
+            include: [
+                {
+                    model: Tournament,
+                    as: 'tournament',  // Use the alias from the model
+                    attributes: ['id', 'name'],
+                },
+                {
+                    model: User,
+                    as: 'player1',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'player2',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'winner',
+                    attributes: ['id', 'name','username'],
+                }
+            ]
+        });
         res.status(200).json({
             message: "Matches retrieved successfully",
             data: matches
@@ -22,7 +48,7 @@ const getAllMatches = async (req, res) => {
 const getMatchDetailsById = async (req, res) => {
     try {
         const id = req.params.id;
-        const match = await matchModel.getMatchById(id);
+        const match = await matchModel.findByPk(id);
 
         if (!match) {
             return res.status(404).json({
@@ -43,8 +69,32 @@ const getMatchDetailsById = async (req, res) => {
 const getMatchesByTournamentId = async (req, res) => {
     try {        
         const tournamentId = req.params.id;        
-        const matches = await matchModel.getMatchesByTournamentId(tournamentId);
-        if(!matches){
+        const matches = await matchModel.findAll({
+            where: { tournament_id: tournamentId},
+            include: [
+                {
+                    model: Tournament,
+                    as: 'tournament',  // Use the alias from the model
+                    attributes: ['id', 'name'],
+                },
+                {
+                    model: User,
+                    as: 'player1',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'player2',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'winner',
+                    attributes: ['id', 'name','username'],
+                }
+            ]
+        });
+        if(!matches.length){
             return res.status(404).json({
                 message: 'No matches found for this tournament'
             });
@@ -65,7 +115,7 @@ const getMatchesByTournamentId = async (req, res) => {
 const createMatch = async (req, res) => {
     try {
         const matchData = req.body;
-        const newMatch = await matchModel.createMatch(matchData);
+        const newMatch = await matchModel.create(matchData);
         res.status(201).json({
             message: "Match created successfully",
             match: newMatch
@@ -83,7 +133,14 @@ const updateMatch = async (req, res) => {
     try {
         const id = req.params.id;
         const matchData = req.body;
-        const updatedMatch = await matchModel.updateMatch(id, matchData);
+        const match = await matchModel.findByPk(id);
+        if (!match) {
+            return res.status(404).json({
+                message: 'Match not found'
+            });
+        }
+
+        const updatedMatch = await match.update(matchData);
         res.status(200).json({
             message: "Match updated successfully",
             match: updatedMatch
@@ -100,7 +157,14 @@ const updateMatch = async (req, res) => {
 const deleteMatch = async (req, res) => {
     try {
         const id = req.params.id;
-        await matchModel.deleteMatch(id);
+        const match = await matchModel.findByPk(id); // Fetch the match to check if it exists
+        if (!match) {
+            return res.status(404).json({
+                message: 'Match not found'
+            });
+        }
+
+        await match.destroy();
         res.status(200).json({
             message: "Match deleted successfully"
         });
@@ -119,7 +183,9 @@ const createKnockoutMatches =  async (req,res) => {
         const tournamentId = req.params.id;
         
         // Get Particpants for Tournament
-        const participants = await participantModel.getParticipationsByTournament(tournamentId);
+        const participants = await participantModel.findAll({
+            where: { tournament_id: tournamentId }
+        });
 
         // Check if number of participants is power of 2 (2,4,8..)
         if (participants.length !== Math.pow(2, Math.floor(Math.log2(participants.length)))){
@@ -129,10 +195,13 @@ const createKnockoutMatches =  async (req,res) => {
         }
 
         // Update the tournament start data
-        const updatedTournament = await tournamentModel.tournamentStarted(tournamentId);        
+        const updatedTournament = await tournamentModel.update({
+            startDate: new Date()
+        },{
+            where: { id: tournamentId}
+        });        
         
         // Shuffle Participants for Random pairings
-        console.log(participants);
         const shuffledParticipants = shuffleArray(participants);
 
         // Create matches for first round
@@ -143,7 +212,7 @@ const createKnockoutMatches =  async (req,res) => {
             const participant2 = shuffledParticipants[i+1].user_id;
 
             // Create a match
-            const match = await matchModel.createMatch({
+            const match = await matchModel.create({
                 tournament_id: tournamentId,
                 player1_id: participant1,
                 player2_id: participant2,
@@ -174,10 +243,15 @@ const createSubsequentRoundMatches = async (req,res) => {
         const tournamentId = req.params.id;
 
         // Get Max Round for the tournament
-        const maxRound = await matchModel.getMaxRoundForTournament(tournamentId);
+        const maxRound = await matchModel.max('round',{
+            where: { tournament_id: tournamentId}
+        });
 
         // Check if only one winner left 
-        const winners = await matchModel.getWinnersOfRound(tournamentId,maxRound);
+        const winners = await matchModel.findAll({
+            where: { tournament_id: tournamentId, round: maxRound, winner_id: { [Op.not]: null}},
+            attributes: ['winner_id']
+        });
         if(winners.length === 1){
             return res.status(200).json({
                 message: "Tournament is complete"
@@ -185,21 +259,23 @@ const createSubsequentRoundMatches = async (req,res) => {
         }
 
         // Ensure past rounds have winner before creating new round
-        const round_matches = await matchModel.getMatchesByTournamentAndRound(tournamentId, maxRound);
+        const round_matches = await matchModel.findAll({
+            where: { tournament_id: tournamentId, round: maxRound}
+        });
         if(round_matches.length !== winners.length){
             return res.status(400).json({
                 message: "Past rounds must have a winner before creating new round"
             });
         }
 
-        const shuffledWinners = shuffleArray(winners);        
+        const shuffledWinners = shuffleArray(winners.map((w)=> w.winner_id));        
 
         // Create matches for next round
         const nextRound = maxRound + 1;
         const newMatches = [];
         for(let i = 0; i < shuffledWinners.length; i+=2){
             // Create a match
-            const match = await matchModel.createMatch({
+            const match = await matchModel.create({
                 tournament_id: tournamentId,
                 player1_id: shuffledWinners[i],
                 player2_id: shuffledWinners[i+1],
@@ -232,7 +308,9 @@ const simulateRoundMatches = async (req, res) => {
         const round = req.params.round; // The round to simulate matches for
 
         // Get all matches for the specified round in the tournament
-        const matches = await matchModel.getMatchesByTournamentAndRound(tournamentId, round);
+        const matches = await matchModel.findAll({
+            where: { tournament_id: tournamentId,round:round}
+        });
         
         if (matches.length === 0) {
             return res.status(404).json({
@@ -240,8 +318,12 @@ const simulateRoundMatches = async (req, res) => {
             });
         }
 
-        if(matches.length == 1){                
-            await tournamentModel.tournamentComplete(tournamentId);
+        if (matches.length === 1) {
+            // Set the endDate to current date and time
+            await tournamentModel.update(
+                { endDate: new Date() }, 
+                { where: { id: tournamentId } }
+            );
         }
 
         const simulatedMatches = [];
@@ -254,11 +336,12 @@ const simulateRoundMatches = async (req, res) => {
             const winnerId = scorePlayer1 > scorePlayer2 ? match.player1_id : (scorePlayer1 < scorePlayer2 ? match.player2_id : null);
 
             // Update the match with the simulated scores and winner
-            const updatedMatch = await matchModel.updateSimulateMatch(match.id, {
+            const updatedMatch = await matchModel.update({
                 score_player1: scorePlayer1,
                 score_player2: scorePlayer2,
-                winner_id: winnerId,
-                updated_at: new Date()
+                winner_id: winnerId
+            },{
+                where: { id: match.id}
             });
 
             simulatedMatches.push(updatedMatch);
@@ -281,8 +364,37 @@ const simulateRoundMatches = async (req, res) => {
 const getMatchesByUserId = async (req, res) => {
     try {        
         const id = req.params.id;        
-        const matches = await matchModel.getMatchesByUserId(id);
-        if(!matches){
+        const matches = await matchModel.findAll({
+            where: {
+                [Op.or]: [
+                    {player1_id: id},
+                    {player2_id: id}
+                ]
+            },
+            include: [
+                {
+                    model: Tournament,
+                    as: 'tournament',  // Use the alias from the model
+                    attributes: ['id', 'name'],
+                },
+                {
+                    model: User,
+                    as: 'player1',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'player2',
+                    attributes: ['id', 'name','username'],
+                },
+                {
+                    model: User,
+                    as: 'winner',
+                    attributes: ['id', 'name','username'],
+                }
+            ]
+        });
+        if(matches.length == 0){
             return res.status(404).json({
                 message: 'No matches found for this user'
             });

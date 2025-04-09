@@ -1,3 +1,70 @@
+// WITH ORM
+const { DataTypes } = require('sequelize');
+const sequelize = require('../config/dbConfig');
+const bcrypt = require('bcryptjs');
+
+// User Model
+const User = sequelize.define('User',{
+  name: {
+    type: DataTypes.STRING(50),
+    allowNull: false
+  },
+  username:{
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    unique: true
+  },
+  email: {
+    type: DataTypes.STRING(100),
+    unique: true,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  roleId: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  roleName: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    defaultValue: 'User'
+  },
+  contact: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+},{
+  timestamps: false, // automatically adds createdAt and updatedAt fields    
+});
+
+// Hook to hash password before saving the user
+User.beforeCreate(async (user,options)=>{
+  if(user.password){
+    user.password = await bcrypt.hash(user.password, 10);
+  }
+})
+
+User.comparePassword = async function (inputPassword, storedPassword) {
+  const isMatch = await bcrypt.compare(inputPassword, storedPassword);
+  return isMatch;  // true if the passwords match, false otherwise
+};
+
+// Sync the model with database (Creates table if it does not exist)
+User.sync().then(
+  ()=>{
+    console.log('User model synced with database')
+  }
+).catch((err)=>{
+  console.log('Error syncing User model with database',err)
+});
+
+module.exports = User;
+
+// OLD WAY WITHOUT ORM
+/*
 const db = require("../config/dbConfig");
 const bcrypt = require("bcryptjs");
 
@@ -132,3 +199,4 @@ module.exports = {
     getAllUsers,
     getUserDetailsById
 };
+*/

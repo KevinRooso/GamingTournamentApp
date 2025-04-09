@@ -87,17 +87,17 @@ const startTournament = async (id) => {
 const columns = [
 	{
 		name: 'Name',
-		selector: row => row.name,
+		selector: row => row.User?.name,
         sortable: true
 	},	
     {
 		name: 'Username',
-		selector: row => row.username,
+		selector: row => row.User?.username,
         sortable: true
 	},
 	{
 		name: 'Applied at',
-		selector: row => new Date(row.created_at).toLocaleDateString(),
+		selector: row => new Date(row.createdAt).toLocaleDateString(),
         sortable: true
 	},    
     {
@@ -109,7 +109,7 @@ const columns = [
         name: 'Actions',
         selector: row => {
             return ( 
-                userData.id == row.user_id && !tournamentData.start_date ? 
+                userData.id == row.user_id && !tournamentData.startDate ? 
                 (<button className="btn btn-danger" onClick={() => {cancelParticipationTournament(row.id)}}>
                 Cancel <FontAwesomeIcon icon={faBan} /></button>)               
                 : (<span>-</span>)
@@ -122,7 +122,7 @@ const columns = [
         <div className="container">            
             <h4>{tournamentData && tournamentData.name} Participants</h4>
             {
-            (userData && userData.roleId == 2) && (participants.length < tournamentData.max_participants) && (
+            (userData && userData.roleId == 2) && (participants.length < tournamentData.maxParticipants) && (
             <div className="d-flex justify-content-end mr-3">
                 <button className="btn btn-primary" onClick={participateTournament}>
                     Participate <FontAwesomeIcon icon={faHand} />
@@ -131,8 +131,8 @@ const columns = [
             )
             }
             {
-                (userData && userData.roleId == 1) && (participants.length == tournamentData.max_participants)
-                && (!tournamentData.start_date)
+                (userData && userData.roleId == 1) && (participants.length == tournamentData.maxParticipants)
+                && (!tournamentData.startDate)
                 &&
                 (
                 <div className="d-flex justify-content-end mr-3">
@@ -143,7 +143,7 @@ const columns = [
                 )
             }
             {
-                (tournamentData.start_date) && (participants.length == tournamentData.max_participants)
+                (tournamentData.startDate) && (participants.length == tournamentData.maxParticipants)
                 && 
                 (
                     <div className="d-flex justify-content-end mr-3">

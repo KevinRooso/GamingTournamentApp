@@ -21,7 +21,7 @@ body, html {
   margin-bottom: 1.5rem;
 }
 
-/* Optional: Hover effect for the container */
+/*Hover effect for the container */
 .container:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7) !important; /* Slightly larger shadow on hover */
 }

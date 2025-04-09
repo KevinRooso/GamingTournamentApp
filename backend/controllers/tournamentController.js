@@ -3,7 +3,7 @@ const tournamentModel = require('../models/tournament');
 // Get All Tournaments
 const getAllTournaments = async(req,res) => {
     try {
-        const tournaments = await tournamentModel.getAllTournaments();
+        const tournaments = await tournamentModel.findAll();
         res.status(200).json({
             message: "Tournaments retrieved successfully",
             data: tournaments
@@ -20,7 +20,7 @@ const getAllTournaments = async(req,res) => {
 const getTournamentDetailsById = async(req,res) => {
     try {
         const tournamentId = req.params.id;
-        const tournament = await tournamentModel.getTournamentById(tournamentId);
+        const tournament = await tournamentModel.findByPk(tournamentId);
         if(!tournament){
             return res.status(404).json({
                 message: "Tournament not found",                
@@ -42,7 +42,7 @@ const getTournamentDetailsById = async(req,res) => {
 const createTournament = async(req,res) => {
     try {
         const tournamentData = req.body;
-        const newTournament = await tournamentModel.createTournament(tournamentData);
+        const newTournament = await tournamentModel.create(tournamentData);
         res.status(201).json({
             message: "Tournament created successfully",
             data: newTournament
@@ -60,10 +60,20 @@ const updateTournament = async(req,res) => {
     try{
         const tournamentId = req.params.id;
         const tournamentData = req.body;
-        const updatedTournament = await tournamentModel.updateTournament(tournamentId, tournamentData);
+
+        // Use Sequelize's findByPk method to check if the tournament exists
+        const tournament = await tournamentModel.findByPk(tournamentId);
+        if (!tournament) {
+            return res.status(404).json({
+                message: "Tournament not found"
+            });
+        }
+        
+        // Update the tournament
+        await tournament.update(tournamentData);
         res.status(200).json({
             message: "Tournament updated successfully",
-            data: updatedTournament
+            data: tournament
         });
     }catch(err){
         res.status(500).json({
@@ -77,7 +87,15 @@ const updateTournament = async(req,res) => {
 const deleteTournament = async(req,res) => {
     try{
         const tournamentId = req.params.id;
-        await tournamentModel.deleteTournament(tournamentId);
+         // Use Sequelize's findByPk to check if the tournament exists
+         const tournament = await tournamentModel.findByPk(tournamentId);
+         if (!tournament) {
+             return res.status(404).json({
+                 message: "Tournament not found"
+             });
+         }
+
+        await tournament.destroy();
         res.status(200).json({
             message: "Tournament deleted successfully"
         });
