@@ -119,6 +119,14 @@ const Dashboard = () => {
             xaxis: {
                 categories: matchScores.map((score) => score.match_date),
                 type: 'datetime', // This ensures that the x-axis is based on date-time values
+                labels: {
+                    formatter: function (value) {
+                        const date = new Date(value);
+                        const options = { day: '2-digit', month: 'short'};
+                        return date.toLocaleDateString('en-GB', options); // en-GB gives you dd MMM yyyy
+                    }
+                },
+                tickAmount: 7,
             },
             dataLabels: {
                 enabled: false, // Disables data labels for a cleaner look
@@ -136,12 +144,12 @@ const Dashboard = () => {
                 },
             },
             tooltip: {
-                shared: true, // Shared tooltip for both player scores
-                intersect: false, // Tooltip will be triggered anywhere over the line, not just on intersection
+                shared: true,
+                intersect: false,
                 x: {
-                    format: 'dd/MM/yy HH:mm'
-                },
-            },
+                    format: 'dd/MM/yy HH:mm' // e.g., "14/12/24 16:30"
+                }
+            }
         },
         series: [
             {
@@ -155,27 +163,7 @@ const Dashboard = () => {
         ],
     });    
     
-
-       // Pie Chart for Win/Loss Ratio
-       setWinLossChart({
-           options: {
-               chart: {
-                   id: "win-loss-ratio",
-                   type: "pie",
-                   height: 350,
-               },
-               labels: tournaments,
-               title: {
-                   text: "Win/Loss Ratio by Tournament",
-                   align: "center",
-                   style: {
-                       fontSize: '20px',
-                       fontWeight: 'bold',
-                   },
-               },
-           },
-           series: winLossData.map((tournament) => tournament.data[0]),
-       });
+     
     };
 
     return(
@@ -197,15 +185,7 @@ const Dashboard = () => {
                         type="area"
                         width="500"
                     />
-                </div>
-                <div className="chart">                    
-                    <Chart
-                        options={winLossChart.options}
-                        series={winLossChart.series}
-                        type="pie"
-                        width="500"
-                    />
-                </div>
+                </div>              
             </div>
         </div>
     )
